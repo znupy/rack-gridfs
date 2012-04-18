@@ -65,7 +65,7 @@ module Rack
           when :id
             Mongo::Grid.new(db).get(BSON::ObjectId.from_string(id_or_path))
           when :path
-            return nil if @exclude and @exclude.match(id_or_path)
+            raise GridFileNotFound, "Could not open file #{id_or_path}" if @exclude and @exclude.match(id_or_path)
             path = CGI::unescape(id_or_path)
             Mongo::GridFileSystem.new(db).open(path, "r")
           end
