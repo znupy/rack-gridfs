@@ -7,9 +7,10 @@ module Rack
         def initialize(options = {})
           @options = default_options.merge(options)
 
-          @db     = @options[:db]
-          @lookup = @options[:lookup]
-          @mapper = @options[:mapper]
+          @db       = @options[:db]
+          @lookup   = @options[:lookup]
+          @mapper   = @options[:mapper]
+          @exclude  = @options[:exclude] 
         end
 
         def call(env)
@@ -64,6 +65,7 @@ module Rack
           when :id
             Mongo::Grid.new(db).get(BSON::ObjectId.from_string(id_or_path))
           when :path
+            return nil if @exclude and @exclude.match(id_or_path)
             path = CGI::unescape(id_or_path)
             Mongo::GridFileSystem.new(db).open(path, "r")
           end
